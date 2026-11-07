@@ -2,10 +2,10 @@
   "name": "sendlock",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
-    "dev:server": "tsx watch server/src/index.ts",
-    "dev:client": "vite --host 0.0.0.0",
-    "build": "tsc -p client/tsconfig.json && vite build",
+    "dev": "node init && concurrently \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "node init && tsx watch server/src/index.ts",
+    "dev:client": "node init && vite --host 0.0.0.0",
+    "build": "node init && tsc -p client/tsconfig.json && vite build",
     "seed": "node server/prisma/seed.cjs",
     "prisma:generate": "prisma generate --schema server/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema server/prisma/schema.prisma --name init"

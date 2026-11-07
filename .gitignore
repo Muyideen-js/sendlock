@@ -1,7 +1,5 @@
 node_modules
 dist
-.env
-.env.*
 !.env.example
 server/.env
 server/.env.*
@@ -10,3 +8,4 @@ server/prisma/*.db
 server/prisma/*.db-journal
 .DS_Store
 *.log
+config.bat
