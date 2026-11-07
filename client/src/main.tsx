@@ -1518,7 +1518,12 @@ function Send() {
         method: 'POST',
         body: JSON.stringify({ account_number: form.accountNumber, bank_id: form.bankId })
       })
-        .then(setLookup)
+        .then((res) => {
+          setLookup(res);
+          if (res?.account_name && !form.recipientName) {
+            setForm((prev) => ({ ...prev, recipientName: res.account_name }));
+          }
+        })
         .catch(() => {});
     } else {
       setLookup(null);
@@ -1708,7 +1713,10 @@ function Send() {
                 }}
               >
                 <Check size={13} />
-                <span>Verified: <b>{lookup.account_name}</b> ({lookup.bank_name})</span>
+                <span>
+                  Verified: <b>{lookup.account_name}</b> ({lookup.bank_name}) ·{' '}
+                  <span style={{ color: 'var(--lime)' }}>{lookup.verification_source || 'Blaaiz Live'}</span>
+                </span>
               </div>
             )}
           </div>

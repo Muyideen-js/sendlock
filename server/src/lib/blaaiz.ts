@@ -58,25 +58,25 @@ async function getBlaaizAuthHeader(): Promise<string | null> {
 
     try {
       console.log(`⚡ [Blaaiz API] Exchanging OAuth credentials at ${BLAAIZ_API_URL}/oauth/token...`);
-      const bodyParams = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: BLAAIZ_CLIENT_ID,
-        client_secret: BLAAIZ_CLIENT_SECRET,
-        scope: 'wallet:read payout:create transaction:read collection:create'
-      });
-
+      const scope = 'bank:read rates:read beneficiary:read payout:create customer:read customer:write fees:read collection:create';
       const res = await fetch(`${BLAAIZ_API_URL}/oauth/token`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: bodyParams.toString()
+        body: JSON.stringify({
+          grant_type: 'client_credentials',
+          client_id: BLAAIZ_CLIENT_ID,
+          client_secret: BLAAIZ_CLIENT_SECRET,
+          scope
+        })
       });
 
       if (res.ok) {
         const data: any = await res.json();
         const token = data.access_token || data.token;
-        const expiresIn = Number(data.expires_in) || 3600;
+        const expiresIn = Number(data.expires_in) || 900;
         cachedToken = {
           token,
           expiresAt: now + expiresIn * 1000
@@ -109,7 +109,7 @@ export async function getBlaaizStatus() {
     hasApiKey,
     hasClientId,
     authMethod: hasClientId
-      ? 'OAuth 2.0 (Client Credentials)'
+      ? 'OAuth 2.0 (Client Credentials - Active)'
       : hasApiKey
       ? 'API Key / Bearer'
       : 'Demo Simulation (Credentials not yet in server/.env)',
@@ -125,15 +125,15 @@ export const listBanks = async (): Promise<Bank[]> => {
   const auth = await getBlaaizAuthHeader();
   if (auth && !mock) {
     try {
-      console.log(`⚡ [Blaaiz API] Fetching bank list from ${BLAAIZ_API_URL}/v1/banks...`);
-      const res = await fetch(`${BLAAIZ_API_URL}/v1/banks`, {
-        headers: { Authorization: auth, 'Content-Type': 'application/json' }
+      console.log(`⚡ [Blaaiz API] Fetching live bank list from ${BLAAIZ_API_URL}/api/external/bank...`);
+      const res = await fetch(`${BLAAIZ_API_URL}/api/external/bank`, {
+        headers: { Authorization: auth, Accept: 'application/json' }
       });
       if (res.ok) {
         const data: any = await res.json();
-        if (Array.isArray(data.data) && data.data.length > 0) {
-          return data.data.map((b: any) => ({
-            id: String(b.code || b.id),
+        if (Array.isArray(data) && data.length > 0) {
+          return data.map((b: any) => ({
+            id: String(b.id),
             code: String(b.code || b.id),
             name: b.name
           }));
@@ -163,26 +163,33 @@ export const lookupBankAccount = async ({
   const auth = await getBlaaizAuthHeader();
   if (auth && !mock) {
     try {
-      console.log(`⚡ [Blaaiz API] Resolving account ${account_number} (bank: ${bank_id}) via Blaaiz...`);
-      const res = await fetch(`${BLAAIZ_API_URL}/v1/bank-accounts/verify`, {
+      console.log(`⚡ [Blaaiz API] Resolving account ${account_number} (bank_id: ${bank_id}) via Blaaiz...`);
+      const res = await fetch(`${BLAAIZ_API_URL}/api/external/bank/account-lookup`, {
         method: 'POST',
-        headers: { Authorization: auth, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account_number, bank_code: bank_id })
+        headers: {
+          Authorization: auth,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({ account_number, bank_id: String(bank_id) })
       });
       if (res.ok) {
         const data: any = await res.json();
         const account_name = data.account_name || data.data?.account_name;
         if (account_name) {
-          const bank = defaultBanks.find((b) => b.id === bank_id) || defaultBanks[0];
+          const bank = defaultBanks.find((b) => b.id === bank_id || b.code === bank_id);
           return {
             account_name,
             account_number,
             bank_id,
-            bank_name: bank.name,
+            bank_name: bank ? bank.name : 'Commercial Bank',
             verified: true,
-            verification_source: 'Blaaiz NIBSS API Live'
+            verification_source: 'Blaaiz Official API Live'
           };
         }
+      } else {
+        const errText = await res.text();
+        console.warn(`[Blaaiz API] Lookup returned status ${res.status}:`, errText);
       }
     } catch (e: any) {
       console.warn(`[Blaaiz API] Live account lookup fallback:`, e.message);
