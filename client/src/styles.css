@@ -1705,3 +1705,252 @@ option {
     display: none;
   }
 }
+
+/* -------------------------------------------------------------
+   INTERACTIVE ANIMATIONS & ESCROW LOCKING UI
+------------------------------------------------------------- */
+
+/* Countdown Pill */
+.countdown-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 181, 71, 0.08);
+  border: 1px solid rgba(255, 181, 71, 0.25);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffc977;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.pulse-icon {
+  animation: pulse-icon-anim 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-icon-anim {
+  0%, 100% { opacity: 0.6; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+/* Escrow Vault Locking Modal */
+.escrow-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(6, 7, 8, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modal-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.escrow-modal-box {
+  background: #0d1013;
+  border: 1px solid rgba(215, 255, 58, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(215, 255, 58, 0.08);
+  border-radius: 16px;
+  padding: 32px 28px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  animation: modal-pop-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop-up {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.lock-ring-glow {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(215, 255, 58, 0.1);
+  border: 1px solid rgba(215, 255, 58, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--lime);
+  position: relative;
+}
+
+.lock-ring-glow::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(215, 255, 58, 0.35);
+  animation: spin-slow 10s linear infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.escrow-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 20px 0 16px;
+}
+
+.escrow-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lime), var(--mint));
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}
+
+.escrow-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.escrow-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--muted);
+  transition: all 0.2s ease;
+}
+
+.escrow-step-row.is-done {
+  color: var(--text);
+}
+
+.escrow-step-row.is-current {
+  color: var(--lime);
+  font-weight: 600;
+}
+
+.step-indicator-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.step-indicator-dot.done {
+  background: var(--lime);
+  color: #060708;
+}
+
+.step-indicator-dot.active {
+  background: rgba(215, 255, 58, 0.2);
+  border: 1.5px solid var(--lime);
+  color: var(--lime);
+}
+
+.step-indicator-dot.pending {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+}
+
+/* Blaaiz Live API Telemetry Drawer */
+.blaaiz-inspector-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.blaaiz-inspector-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 480px;
+  background: #080a0c;
+  border-left: 1px solid rgba(215, 255, 58, 0.2);
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  animation: slide-drawer-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.telemetry-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0d1013;
+}
+
+.telemetry-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.telemetry-log-card {
+  background: #0d1014;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.telemetry-log-card:hover {
+  border-color: rgba(215, 255, 58, 0.2);
+}
+
+.method-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.method-tag.POST { background: rgba(155, 123, 255, 0.15); color: #bca4ff; }
+.method-tag.GET { background: rgba(61, 255, 162, 0.15); color: #3dffa2; }
+
+/* Celebration Receipt Card */
+.celebration-card {
+  background: rgba(61, 255, 162, 0.05);
+  border: 1px solid rgba(61, 255, 162, 0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  text-align: left;
+}
+
